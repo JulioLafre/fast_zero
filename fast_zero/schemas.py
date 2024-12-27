@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class Message(BaseModel):
@@ -11,14 +11,14 @@ class UserSchema(BaseModel):
     password: str
 
 
-class UserDB(UserSchema):
-    id: int
-
-
 class UserPublic(BaseModel):
     username: str
     email: EmailStr
     id: int
+
+    # It is possible to use ConfigDict to map matching attributes
+    # received from another class and apply them to this class
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserList(BaseModel):
