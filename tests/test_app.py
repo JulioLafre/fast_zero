@@ -66,7 +66,7 @@ def test_read_users(client):
 def test_read_user_by_id(client, user):
     user_schema = UserPublic.model_validate(user).model_dump()
 
-    response = client.get('/users/1')
+    response = client.get(f'/users/{user.id}')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == user_schema
@@ -88,9 +88,10 @@ def test_read_users_with_data(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/users/1 ',
+        f'/users/{user.id} ',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'testeupdate',
             'email': 'update@example.com',
@@ -106,29 +107,9 @@ def test_update_user(client, user):
     }
 
 
-def test_update_user_not_found(client, user):
-    response = client.put(
-        '/users/100',
-        json={
-            'username': 'testenotfound',
-            'email': 'teste@notfound.com',
-            'password': 'notfound',
-            'id': 100,
-        },
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found'}
-
-
-def test_delete_user(client, user):
-    response = client.delete('/users/1')
-
     assert response.json() == {'message': 'User has been deleted'}
-
-
-def test_delete_user_not_found(client, user):
-    response = client.delete('/users/100/')
-
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found'}
